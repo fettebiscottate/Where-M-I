@@ -1,0 +1,16 @@
+{
+  "name": "wheremi",
+  "version": "0.0.1",
+  "description": "Progetto TechWeb 2018/2019",
+  "main": "browser.html",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "TekSweg",
+  "license": "ISC",
+  "keywords": []
+}

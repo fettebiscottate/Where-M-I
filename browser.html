@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<!-- Head Section-->
+
+<head>
+  <title>Where M I ? - Where R U ?</title>
+  <!--character encoding for the HTML document-->
+  <meta charset="utf-8">
+  <!-- Prevent the user to zoom, the viewport is the area of the window in which the web content can be seen-->
+  <meta name="viewport" content="width=device-width, user-scalable=no" />
+  <meta http-equiv="cleartype" content="on">
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <meta name="description" content="The browser webapp of WhereMI" />
+  <meta name="keywords" content="Where, guide, audio, turist" />
+  <meta name="copyright" content="TekSweg">
+  <meta name="revised" content="Wednesday, September 18th, 2019, 6:25 pm" />
+  <meta name="author" content="Alberto Donati, Davide Menetto, Matteo Tramontano, Giacomo Minello">
+
+  <!-- Add external resources-->
+  <script type="text/javascript" src="static/youtubeQuery.js"></script>
+  <script type="text/javascript" src="static/utils.js"></script>
+  <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
+  <script src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+  <script src="https://apis.google.com/js/plus.js?onload=init"></script> <!-- TO DO: add and test async defer-->
+  <script src="https://apis.google.com/js/client.js?onload=onClientLoad"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/openlocationcode/1.0.3/openlocationcode.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+  <script>
+    /** It's just jQuery short-hand for  $(document).ready(function() { ... });*/
+    $(function () { entryPoint(); })
+  </script>
+
+  <style>
+    #mapid {
+      height: 75vh;
+    }
+  </style>
+
+</head>
+
+<!-- Body Section-->
+
+<body>
+
+  <!-- NavBar -->
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">Where M I ? - Where R U ?</a>
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar">
+        <ul class="nav navbar-nav">
+          <li><a href="/browser.html">Browser</a></li>
+          <li><a href="/editor.html">Editor</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+
+  <div id="map-wrap" style="padding-top: 70px;">
+    <div id="mapid"></div>
+  </div>
+
+
+  <div id="pluscode">
+    <input type="text" id="openLocationCode" value="" placeholder="OLC">
+    <button onclick="searchYoutubeVideo()" id="ytButton" type="button" class="btn btn-success" data-toggle="modal"
+      data-target="#modalResultsList">Search</i></button>
+    </button>
+    <input type="checkbox" id="searchFilterOptions" value="true" onclick="onClickCheckBox()">
+    <label for="searchFilterOptions"> Filtra ricerca</label>
+    <input id="location" type="text" style="float: right;" readonly placeholder="Your location">
+  </div>
+
+  <div style="display: none;" id="selectionFilters">
+
+    <div class="select-style" style="display: inline-block;">
+      <select id="purpose" name="purpose">
+        <option value="what">what</option>
+        <option value="how">how</option>
+        <option value="why">why</option>
+      </select>
+    </div>
+
+    <div class="select-style" style="display: inline-block">
+      <select id="language" name="language">
+        <option value="ita">ita</option>
+        <option value="eng">eng</option>
+        <option value="fra">fra</option>
+      </select>
+    </div>
+
+    <div class="select-style" style="display: inline-block">
+      <select id="category" name="category">
+        <option value="none">null</option>
+        <option value="nat">nat</option>
+        <option value="mus">mus</option>
+        <option value="spo">spo</option>
+        <option value="his">his</option>
+      </select>
+    </div>
+
+    <div class="select-style" style="display: inline-block">
+      <select id="audience" name="audience">
+        <option value="gen">gen</option>
+        <option value="pre">pre</option>
+        <option value="elm">elm</option>
+        <option value="mid">mid</option>
+        <option value="scl">esperti</option>
+      </select>
+    </div>
+
+  </div>
+
+
+
+  <div class="fl" id="ctrl">
+    <p>
+      <button class="btn btn-warning" id="pause" onclick="pausePlayer()">Pause </button>
+      <button class="btn btn-info" id="play" onclick="playPlayer()">Play </button>
+    </p>
+  </div>
+
+  <div id="player"></div>
+
+
+
+  <div class="modal" id="modalClipsExpanded" role="dialog">
+    <div class="modal-dialog">
+
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Clips</h4>
+        </div>
+        <div class="modal-body">
+
+          <div id="modalMoreContent">
+            <div id="modalClips"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="modalResultsList" role="dialog">
+    <div class="modal-dialog">
+
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Risultati</h4>
+        </div>
+        <div class="modal-body">
+
+          <div id="modalResultsContent">
+            <ul id="modalResults"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    var player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '200',
+        width: '200',
+        playerVars: { 'enablejsapi': 1, 'origin': 'https://site181932.tw.cs.unibo.it' },
+        events: {
+          'onReady': onPlayerReady
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      event.target.playVideo();
+    }
+
+    function stopVideo() {
+      player.stopVideo();
+    }
+
+  </script>
+
+</body>
+
+</html>

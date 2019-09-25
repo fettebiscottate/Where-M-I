@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<!-- Head Section-->
+
+<head>
+  <title>Where M I ? - Where R U ?</title>
+  <!--character encoding for the HTML document-->
+  <meta charset="utf-8">
+  <!-- Prevent the user to zoom, the viewport is the area of the window in which the web content can be seen-->
+  <meta name="description" content="The editor webapp of WhereMI" />
+  <meta name="keywords" content="Where, guide, audio, turist" />
+  <meta name="viewport" content="width=device-width, user-scalable=no" />
+  <meta http-equiv="cleartype" content="on">
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <meta name="copyright" content="TekSweg">
+  <meta name="revised" content="Wednesday, September 18th, 2019, 6:25 pm" />
+  <meta name="author" content="Alberto Donati, Davide Menetto, Matteo Tramontano, Giacomo Minello">
+
+  <!-- Add external resources-->
+  <script type="text/javascript" src="static/youtubeQuery.js"></script>
+  <script type="text/javascript" src="static/utils.js"></script>
+  <script type="text/javascript" src="static/youtubeAuth.js"></script>
+  <script type="text/javascript" src="static/editor.js"></script>
+  <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
+  <script src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+  <script src="https://apis.google.com/js/plus.js?onload=init"></script> <!-- TO DO: add and test async defer-->
+  <script src="https://apis.google.com/js/client.js?onload=onClientLoad"></script>
+  <script src="https://apis.google.com/js/api:client.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/openlocationcode/1.0.3/openlocationcode.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+
+  <script>
+    $(function () { entryPoint(); })
+  </script>
+
+  <style>
+    #mapid {
+      height: 75vh;
+    }
+  </style>
+
+</head>
+
+
+<!-- Body Section-->
+
+<body>
+
+  <!-- NavBar -->
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">Where M I ? - Where R U ?</a>
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar">
+        <ul class="nav navbar-nav">
+          <li><a href="/browser.html">Browser</a></li>
+          <li><a href="/editor.html">Editor</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+
+  <div id="map-wrap" style="padding-top: 70px;">
+    <div id="mapid"></div>
+  </div>
+  <input id="location" type="text" style="float: right;" readonly placeholder="Your location"> </div>
+  <input type="text" style="float: right;" id="openLocationCode" value="">
+  <div id="gSignInWrapper">
+    <div id="googlebutton" class="g-signin2">
+    </div>
+    <script>loadGoogleButton();</script>
+
+
+
+    <div>
+      <button onclick="getList()" id="listBtn" type="button" class="btn" data-toggle="modal"
+        data-target="#modalList">video</button>
+    </div>
+
+
+    <div>
+      <form id="form" name="modulo" class="form-inline">
+        <div class="form-group">
+          <label for="tit">Titolo</label>
+          <input type="text" id="tit" name="title"  class="form-control" placeholder="Titolo">
+        </div>
+        <div class="form-group">
+          <label for="purpose">Purpose</label>
+          <select id="purpose" class="form-control" name="purpose">
+            <option value="what">what</option>
+            <option value="how">how</option>
+            <option value="why">why</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="lang">lang</label>
+          <select id="lang" class="form-control" name="lang">
+            <option value="ita">ita</option>
+            <option value="eng">eng</option>
+            <option value="fra">fra</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="category">Categoria</label>
+          <select id="category" class="form-control" name="category">
+            <option value="none">null</option>
+            <option value="nat">nat</option>
+            <option value="mus">mus</option>
+            <option value="spo">spo</option>
+            <option value="his">his</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="audience">Audience</label>
+          <select id="audience" class="form-control" name="audience">
+            <option value="gen">gen</option>
+            <option value="pre">pre</option>
+            <option value="elm">elm</option>
+            <option value="mid">mid</option>
+            <option value="scl">esperti</option>
+          </select>
+        </div>
+        <input type="button" class="btn btn-success" value="Registra informazioni" onclick="functionSave()">
+      </form>
+    </div>
+
+    <div>
+      <div>
+        <video id="registratore" width="200" height="200" controls></video>
+        <video id="preview" width="200" height="200" autoplay muted></video>
+      </div>
+    </div>
+
+    <div>
+      <div id="startButton" class="btn btn-danger"> Rec</div>
+      <div id="stopButton" class="btn btn-warning">Stop</div>
+      <a id="downloadButton" class="btn btn-success">Download</a>
+      <button class="btn btn-info" id="uploadBtnPublic" onClick="uploadVideo();">Upload </button>
+    </div>
+
+    <div id="player"></div>
+
+
+    <div class="modal fade" id="modalList" role="dialog">
+      <div class="modal-dialog">
+
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">I tuoi video</h4>
+          </div>
+          <div class="modal-body">
+
+            <div id="videoListContainer">
+              <div id="videoList"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script>
+      // init player
+      //https://developers.google.com/youtube/iframe_api_reference
+      var tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      //Con il parametro enablejsapi puoi abilitare la JavaScript API per il player.
+      //Se utilizzi l'IFrame API, e quindi hai impostato il parametro enablejsapi su 1,
+      // devi sempre specificare il tuo dominio come valore del parametro origin. 
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '200',
+          width: '200',
+          playerVars: { 'enablejsapi': 1, 'origin': 'https://site181932.tw.cs.unibo.it' },
+          events: {
+            'onReady': onPlayerReady
+          }
+        });
+      }
+
+
+      function onPlayerReady(event) {
+        event.target.playVideo();
+      }
+
+
+      function stopVideo() {
+        player.stopVideo();
+      }
+    </script>
+
+
+    <script>
+      //before unload reset auth2
+      $(window).on('beforeunload', function () {
+        if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
+          var auth2 = gapi.auth2.getAuthInstance();
+          auth2.signOut();
+          //.disconnect() Revokes all of the scopes that the user granted.
+          auth2.disconnect();
+        }
+      });
+    </script>
+
+</body>
+
+</html>
